@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import OasisLogo from '../assets/logos/wrose-logo.png';
 import PolygonLogo from '../assets/logos/matic-logo.png';
 import ArrowDown from '../assets/icon/arrow-down.svg';
@@ -27,10 +27,25 @@ export const NetworkMenu = () => {
 
   const networkList = [
     // Define your network objects here
-    { name: 'Polygon', icon: OasisLogo },
-    { name: 'Oasis', icon: PolygonLogo },
+    { name: 'Polygon', icon: PolygonLogo },
+    { name: 'Oasis', icon: OasisLogo },
     // ...
   ];
+
+  const onDocumentClick = event => {
+    const targetElement = event.target;
+    if (!targetElement.closest('.network-menu-container')) {
+      setIsOpenNetworkMenu(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('click', onDocumentClick);
+
+    return () => {
+      document.removeEventListener('click', onDocumentClick);
+    };
+  }, []);
 
   return (
     <div className="relative network-menu-container">

@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ArrowDown from '../assets/icon/arrow-down.svg';
 import CopyIcon from '../assets/icon/copy-icon.svg';
 import AccountIcon from '../assets/logos/account-img.svg';
+import Address from "./Address";
+import Balance from "./Balance";
+import Wallet from "./WalletModal";
 
 function ProfileMenu() {
   const [isOpenProfileMenu, setIsOpenProfileMenu] = useState(false);
@@ -10,21 +13,36 @@ function ProfileMenu() {
     setIsOpenProfileMenu(!isOpenProfileMenu);
   };
 
-  const address = "0xFJKHJa95B1481cb1254ea9BCBc0A124C278"; // Replace with actual address
+  const address = '0xFJKHJa95B1481cb1254ea9BCBc0A124C278'; // Replace with actual address
   const cheddaBalance = 123.456; // Replace with actual balance
   const stakedCheddaBalance = 789.012; // Replace with actual balance
-  const addressCopyText = "Copy Address"; // Replace with desired text
+  const addressCopyText = 'Copy Address'; // Replace with desired text
 
   const copyAddress = () => {
     // Implement the logic for copying the address to clipboard
     // You can use libraries like `clipboard-copy` for this
-    console.log("Address copied to clipboard");
+    console.log('Address copied to clipboard');
   };
 
   const disconnect = () => {
     // Implement the logic for disconnecting the user
-    console.log("User disconnected");
+    console.log('User disconnected');
   };
+
+  const onDocumentClick = event => {
+    const targetElement = event.target;
+    if (!targetElement.closest('.profile-menu-container')) {
+      setIsOpenProfileMenu(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('click', onDocumentClick);
+
+    return () => {
+      document.removeEventListener('click', onDocumentClick);
+    };
+  }, []);
 
   return (
     <div className="relative profile-menu-container">
@@ -35,12 +53,19 @@ function ProfileMenu() {
         <div>
           <img src={AccountIcon} alt="Blockie" className="rounded-full w-7 h-7" />
         </div>
-        <div>{address.substring(0, 6)}...{address.substring(address.length - 4)}</div>
+        <div>
+          {address.substring(0, 6)}...{address.substring(address.length - 4)}
+        </div>
         <div>
           <img src={ArrowDown} alt="Arrow" className="w-2.5 h-2.5" />
         </div>
       </button>
-      <div className={`absolute mt-1 w-56 right-0 bg-[#13161F] menu-bg text-white rounded-md shadow-lg z-10 ${isOpenProfileMenu ? '' : 'hidden'}`} id="mySelectMenu">
+      <div
+        className={`absolute mt-1 w-56 right-0 bg-[#13161F] menu-bg text-white rounded-md shadow-lg z-10 ${
+          isOpenProfileMenu ? '' : 'hidden'
+        }`}
+        id="mySelectMenu"
+      >
         <ul className="list-reset text-center font-semibold">
           <li className="py-4 px-2 rounded-t-md border-b border-gray-700" onClick={copyAddress}>
             <div className="flex gap-3 justify-center items-center">
