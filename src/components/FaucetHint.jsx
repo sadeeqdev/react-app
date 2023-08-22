@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { ethers } from "ethers";
-import { useBalance, useGasPrice } from "eth-hooks";
+import React, { useState } from 'react';
+import { ethers } from 'ethers';
+import { useBalance, useGasPrice } from 'eth-hooks';
 
-import { Transactor } from "../helpers";
+import { Transactor } from '../helpers';
 
 function FaucetHint({ localProvider, targetNetwork, address }) {
   const [faucetClicked, setFaucetClicked] = useState(false);
@@ -11,12 +11,12 @@ function FaucetHint({ localProvider, targetNetwork, address }) {
   const yourLocalBalance = useBalance(localProvider, address);
 
   // get gas Price from network
-  const gasPrice = useGasPrice(targetNetwork, "fast");
+  const gasPrice = useGasPrice(targetNetwork, 'fast');
 
   // Faucet Tx can be used to send funds from the faucet
   const faucetTx = Transactor(localProvider, gasPrice);
 
-  let faucetHint = "";
+  let faucetHint = '';
 
   if (
     !faucetClicked &&
@@ -33,7 +33,7 @@ function FaucetHint({ localProvider, targetNetwork, address }) {
         onClick={() => {
           faucetTx({
             to: address,
-            value: ethers.utils.parseEther("0.01"),
+            value: ethers.utils.parseEther('0.01'),
           });
           setFaucetClicked(true);
         }}

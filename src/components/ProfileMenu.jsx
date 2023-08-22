@@ -2,18 +2,14 @@ import React, { useEffect, useState } from 'react';
 import ArrowDown from '../assets/icon/arrow-down.svg';
 import CopyIcon from '../assets/icon/copy-icon.svg';
 import AccountIcon from '../assets/logos/account-img.svg';
-import Address from "./Address";
-import Balance from "./Balance";
-import Wallet from "./WalletModal";
 
-function ProfileMenu() {
+function ProfileMenu({ address, disconnectWallet }) {
   const [isOpenProfileMenu, setIsOpenProfileMenu] = useState(false);
 
   const openProfileMenu = () => {
     setIsOpenProfileMenu(!isOpenProfileMenu);
   };
 
-  const address = '0xFJKHJa95B1481cb1254ea9BCBc0A124C278'; // Replace with actual address
   const cheddaBalance = 123.456; // Replace with actual balance
   const stakedCheddaBalance = 789.012; // Replace with actual balance
   const addressCopyText = 'Copy Address'; // Replace with desired text
@@ -22,11 +18,6 @@ function ProfileMenu() {
     // Implement the logic for copying the address to clipboard
     // You can use libraries like `clipboard-copy` for this
     console.log('Address copied to clipboard');
-  };
-
-  const disconnect = () => {
-    // Implement the logic for disconnecting the user
-    console.log('User disconnected');
   };
 
   const onDocumentClick = event => {
@@ -54,7 +45,7 @@ function ProfileMenu() {
           <img src={AccountIcon} alt="Blockie" className="rounded-full w-7 h-7" />
         </div>
         <div>
-          {address.substring(0, 6)}...{address.substring(address.length - 4)}
+          {address?.substring(0, 6)}...{address?.substring(address?.length - 4)}
         </div>
         <div>
           <img src={ArrowDown} alt="Arrow" className="w-2.5 h-2.5" />
@@ -70,7 +61,7 @@ function ProfileMenu() {
           <li className="py-4 px-2 rounded-t-md border-b border-gray-700" onClick={copyAddress}>
             <div className="flex gap-3 justify-center items-center">
               <img src={AccountIcon} alt="Blockie" className="rounded-full w-7 h-7" />
-              {address.substring(0, 6)}...{address.substring(address.length - 4)}
+              {address?.substring(0, 6)}...{address?.substring(address?.length - 4)}
               <button className="relative address-container hover:opacity-70">
                 <img src={CopyIcon} width="17px" alt="Copy" />
                 <div className="tooltip">{addressCopyText}</div>
@@ -81,7 +72,7 @@ function ProfileMenu() {
           <li className="py-2 px-2 border-b border-gray-700">{stakedCheddaBalance.toFixed(4)} xCHEDDA</li>
           <li className="py-4 px-5 rounded-b-md cursor-pointer flex items-center">
             <button
-              onClick={disconnect}
+              onClick={disconnectWallet}
               className="h-8 primary-button-bg w-full rounded-lg font-bold uppercase text-md hover:opacity-90"
             >
               Disconnect

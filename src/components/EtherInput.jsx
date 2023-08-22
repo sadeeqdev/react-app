@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { classNames } from "../helpers";
+import React, { useEffect, useState } from 'react';
+import { classNames } from '../helpers';
 import { SwitchHorizontalIcon } from '@heroicons/react/outline';
 
 // small change in useEffect, display currentValue if it's provided by user
@@ -30,41 +30,40 @@ import { SwitchHorizontalIcon } from '@heroicons/react/outline';
 **/
 
 export default function EtherInput(props) {
-  const [mode, setMode] = useState(props.price ? "USD" : "ETH");
+  const [mode, setMode] = useState(props.price ? 'USD' : 'ETH');
   const [display, setDisplay] = useState();
   const [value, setValue] = useState();
 
-  const currentValue = typeof props.value !== "undefined" ? props.value : value;
+  const currentValue = typeof props.value !== 'undefined' ? props.value : value;
 
   useEffect(() => {
     if (!currentValue) {
-      setDisplay("");
+      setDisplay('');
     }
   }, [currentValue]);
-
 
   return (
     <div className="mt-1 flex rounded-md shadow-sm">
       <div className="relative flex items-stretch flex-grow focus-within:z-10">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-          {mode === "USD" ? "$" : "Ξ"}
+          {mode === 'USD' ? '$' : 'Ξ'}
         </div>
         <input
           autoFocus={props.autoFocus}
-          placeholder={props.placeholder ? props.placeholder : "Amount in " + mode}
+          placeholder={props.placeholder ? props.placeholder : 'Amount in ' + mode}
           className={classNames(
-            props.price ? "rounded-none rounded-l-md" : "rounded-md py-2",
-            "block w-full pl-8 sm:text-sm border border-gray-300 focus:outline-none dark:text-white dark:bg-gray-900 dark:border-gray-700 focus:outline-none"
+            props.price ? 'rounded-none rounded-l-md' : 'rounded-md py-2',
+            'block w-full pl-8 sm:text-sm border border-gray-300 focus:outline-none dark:text-white dark:bg-gray-900 dark:border-gray-700 focus:outline-none',
           )}
           value={display}
           onChange={async e => {
             const newValue = e.target.value;
-            if (mode === "USD") {
+            if (mode === 'USD') {
               const possibleNewValue = parseFloat(newValue);
               if (possibleNewValue) {
                 const ethValue = possibleNewValue / props.price;
                 setValue(ethValue);
-                if (typeof props.onChange === "function") {
+                if (typeof props.onChange === 'function') {
                   props.onChange(ethValue);
                 }
                 setDisplay(newValue);
@@ -73,7 +72,7 @@ export default function EtherInput(props) {
               }
             } else {
               setValue(newValue);
-              if (typeof props.onChange === "function") {
+              if (typeof props.onChange === 'function') {
                 props.onChange(newValue);
               }
               setDisplay(newValue);
@@ -86,13 +85,13 @@ export default function EtherInput(props) {
           type="button"
           className="-ml-px relative inline-flex items-center px-2.5 py-2 border border-gray-300 rounded-r-md text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 dark:bg-gray-900 dark:border-gray-700 dark:hover:bg-gray-800"
           onClick={() => {
-            if (mode === "USD") {
-              setMode("ETH");
+            if (mode === 'USD') {
+              setMode('ETH');
               setDisplay(currentValue);
             } else {
-              setMode("USD");
+              setMode('USD');
               if (currentValue) {
-                const usdValue = "" + (parseFloat(currentValue) * props.price).toFixed(2);
+                const usdValue = '' + (parseFloat(currentValue) * props.price).toFixed(2);
                 setDisplay(usdValue);
               } else {
                 setDisplay(currentValue);

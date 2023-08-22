@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import Blockies from "react-blockies";
-import { useLookupAddress } from "eth-hooks/dapps/ens";
+import React, { useState } from 'react';
+import Blockies from 'react-blockies';
+import { useLookupAddress } from 'eth-hooks/dapps/ens';
 import { DocumentDuplicateIcon, CheckCircleIcon } from '@heroicons/react/outline';
-import { blockExplorerLink } from "../helpers";
+import { blockExplorerLink } from '../helpers';
 
 /** 
   ~ What it does? ~
@@ -30,27 +30,27 @@ import { blockExplorerLink } from "../helpers";
 export default function Address(props) {
   const address = props.value || props.address;
   const ens = useLookupAddress(props.ensProvider, address);
-  const ensSplit = ens && ens.split(".");
-  const validEnsCheck = ensSplit && ensSplit[ensSplit.length - 1] === "eth";
+  const ensSplit = ens && ens.split('.');
+  const validEnsCheck = ensSplit && ensSplit[ensSplit.length - 1] === 'eth';
   const etherscanLink = blockExplorerLink(address, props.blockExplorer);
-  let displayAddress = address?.substr(0, 5) + "..." + address?.substr(-4);
+  let displayAddress = address?.substr(0, 5) + '...' + address?.substr(-4);
 
   const [addressCopied, setAddressCopied] = useState(false);
 
-  const copyAddress = (e) => {
+  const copyAddress = e => {
     e.stopPropagation();
     navigator.clipboard.writeText(address);
     setAddressCopied(true);
     setTimeout(() => {
       setAddressCopied(false);
     }, 800);
-  }
+  };
 
   if (validEnsCheck) {
     displayAddress = ens;
-  } else if (props.size === "short") {
-    displayAddress += "..." + address.substr(-4);
-  } else if (props.size === "long") {
+  } else if (props.size === 'short') {
+    displayAddress += '...' + address.substr(-4);
+  } else if (props.size === 'long') {
     displayAddress = address;
   }
 
@@ -68,18 +68,9 @@ export default function Address(props) {
 
   if (props.minimized) {
     return (
-        <a
-          target="_blank"
-          href={etherscanLink}
-          rel="noopener noreferrer"
-        >
-          <Blockies
-            className="inline rounded-md"
-            size={8}
-            scale={2}
-            seed={address.toLowerCase()}
-          />
-        </a>
+      <a target="_blank" href={etherscanLink} rel="noopener noreferrer">
+        <Blockies className="inline rounded-md" size={8} scale={2} seed={address.toLowerCase()} />
+      </a>
     );
   }
 
@@ -93,26 +84,30 @@ export default function Address(props) {
           scale={props.fontSize ? props.fontSize / 7 : 4}
         />
       </div>
-      {props.disableAddressLink
-        ?
-          <span className="ml-1.5 text-lg font-normal text-gray-900 dark:text-white">
-            {displayAddress}
-          </span>
-        :
-          <a className="ml-1.5 text-lg font-normal text-gray-900 dark:text-white" target="_blank" href={etherscanLink} rel="noopener noreferrer">
-            {displayAddress}
-          </a>
-      }
-      {addressCopied
-        ?
-          <CheckCircleIcon className="ml-1.5 text-xl font-normal text-sky-600 h-5 w-5 cursor-pointer" aria-hidden="true" />
-        :
-          <DocumentDuplicateIcon
-            className="ml-1.5 text-xl font-normal text-sky-600 h-5 w-5 cursor-pointer"
-            aria-hidden="true"
-            onClick={copyAddress}
-          />
-      }
+      {props.disableAddressLink ? (
+        <span className="ml-1.5 text-lg font-normal text-gray-900 dark:text-white">{displayAddress}</span>
+      ) : (
+        <a
+          className="ml-1.5 text-lg font-normal text-gray-900 dark:text-white"
+          target="_blank"
+          href={etherscanLink}
+          rel="noopener noreferrer"
+        >
+          {displayAddress}
+        </a>
+      )}
+      {addressCopied ? (
+        <CheckCircleIcon
+          className="ml-1.5 text-xl font-normal text-sky-600 h-5 w-5 cursor-pointer"
+          aria-hidden="true"
+        />
+      ) : (
+        <DocumentDuplicateIcon
+          className="ml-1.5 text-xl font-normal text-sky-600 h-5 w-5 cursor-pointer"
+          aria-hidden="true"
+          onClick={copyAddress}
+        />
+      )}
     </div>
   );
 }

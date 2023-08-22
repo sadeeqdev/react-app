@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import CheddaLogo from '../assets/logos/app-logo.svg';
+import { useAccount } from '../hooks/useAccount';
+import { ConnectButton } from './ConnectButton';
 import { NetworkMenu } from './NetworkMenu';
 import ProfileMenu from './ProfileMenu';
 
 const HeaderComponent = () => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const { injectedProvider, address, logoutOfWeb3Modal, loadWeb3Modal } = useAccount();
+
   const menuItems = [
     {
       name: 'Lend',
@@ -28,7 +32,6 @@ const HeaderComponent = () => {
       icon: 'checkbox',
     },
   ];
-  const account = null; // Set the account value if available
 
   useEffect(() => {
     const handleScroll = () => {
@@ -44,10 +47,6 @@ const HeaderComponent = () => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
-
-  const onConnectTapped = () => {
-    // Implement your connect wallet logic here
-  };
 
   return (
     <div
@@ -68,15 +67,10 @@ const HeaderComponent = () => {
         </div>
         <div className="flex flex-row gap-2 text-white">
           <NetworkMenu />
-          {!account ? (
-            <ProfileMenu />
+          {injectedProvider ? (
+            <ProfileMenu disconnectWallet={logoutOfWeb3Modal} address={address} />
           ) : (
-            <button
-              onClick={onConnectTapped}
-              className="h-9 w-32 sm:h-11 sm:w-40 px-2 flex rounded-lg justify-center font-bold text-xs sm:text-lg account_button items-center hover:opacity-90"
-            >
-              Connect wallet
-            </button>
+            <ConnectButton connectWallet={loadWeb3Modal} />
           )}
         </div>
       </div>

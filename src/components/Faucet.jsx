@@ -1,15 +1,11 @@
-import React, { useState, useEffect } from "react";
-import Blockies from "react-blockies";
-import { Transactor } from "../helpers";
-import WalletModal from "./WalletModal";
+import React, { useState, useEffect } from 'react';
+import Blockies from 'react-blockies';
+import { Transactor } from '../helpers';
+import WalletModal from './WalletModal';
 
-import {
-  PaperAirplaneIcon,
-  ArrowsExpandIcon,
-  IdentificationIcon,
-} from '@heroicons/react/solid';
+import { PaperAirplaneIcon, ArrowsExpandIcon, IdentificationIcon } from '@heroicons/react/solid';
 
-const { utils } = require("ethers");
+const { utils } = require('ethers');
 
 // improved a bit by converting address to ens if it exists
 // added option to directly input ens name
@@ -57,7 +53,7 @@ export default function Faucet(props) {
   }, [localProvider]);
 
   let blockie;
-  if (address && typeof address.toLowerCase === "function") {
+  if (address && typeof address.toLowerCase === 'function') {
     blockie = <Blockies className="rounded" seed={address.toLowerCase()} size={4} scale={4} />;
   } else {
     blockie = <IdentificationIcon className="h-4 w-4 text-gray-400" aria-hidden="true" />;
@@ -68,12 +64,10 @@ export default function Faucet(props) {
   return (
     <div className="mt-1 flex rounded-md shadow-sm">
       <div className="relative flex items-stretch flex-grow focus-within:z-10">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          {blockie}
-        </div>
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">{blockie}</div>
         <input
           className="block w-full rounded-none rounded-l-md pl-8 sm:text-sm border border-gray-300 focus:outline-none dark:text-white dark:bg-gray-900 dark:border-gray-700 focus:outline-none"
-          placeholder={placeholder ? placeholder : "Local Faucet"}
+          placeholder={placeholder ? placeholder : 'Local Faucet'}
           value={address}
           onChange={e => setAddress(e.target.value)}
         />
@@ -84,9 +78,9 @@ export default function Faucet(props) {
         onClick={() => {
           tx({
             to: address,
-            value: utils.parseEther("0.01"),
+            value: utils.parseEther('0.01'),
           });
-          setAddress("");
+          setAddress('');
         }}
       >
         <PaperAirplaneIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
@@ -94,7 +88,7 @@ export default function Faucet(props) {
       <button
         type="button"
         className="-ml-px relative inline-flex items-center px-2.5 py-2 border border-gray-300 text-sm font-medium rounded-r-md text-gray-700 bg-gray-50 hover:bg-gray-100 dark:bg-gray-900 dark:border-gray-700 dark:hover:bg-gray-800"
-        onClick={ () => setWalletOpen(true) }
+        onClick={() => setWalletOpen(true)}
       >
         <ArrowsExpandIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
       </button>

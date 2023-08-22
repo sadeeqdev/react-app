@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { useBalance } from "eth-hooks";
-import { classNames } from "../helpers";
+import React, { useState } from 'react';
+import { useBalance } from 'eth-hooks';
+import { classNames } from '../helpers';
 
-const { utils } = require("ethers");
+const { utils } = require('ethers');
 
 /** 
   ~ What it does? ~
@@ -34,11 +34,11 @@ export default function Balance(props) {
   const [dollarMode, setDollarMode] = useState(true);
 
   const balance = useBalance(props.provider, props.address);
-  let floatBalance = parseFloat("0.00");
+  let floatBalance = parseFloat('0.00');
   let usingBalance = balance;
 
-  if (typeof props.balance !== "undefined") usingBalance = props.balance;
-  if (typeof props.value !== "undefined") usingBalance = props.value;
+  if (typeof props.balance !== 'undefined') usingBalance = props.balance;
+  if (typeof props.value !== 'undefined') usingBalance = props.value;
 
   if (usingBalance) {
     const etherBalance = utils.formatEther(usingBalance);
@@ -46,20 +46,17 @@ export default function Balance(props) {
     floatBalance = parseFloat(etherBalance);
   }
 
-  let displayBalance = "Ξ" + floatBalance.toFixed(4);
+  let displayBalance = 'Ξ' + floatBalance.toFixed(4);
 
   const price = props.price || props.dollarMultiplier || 1;
 
   if (dollarMode) {
-    displayBalance = "$" + (floatBalance * price).toFixed(2);
+    displayBalance = '$' + (floatBalance * price).toFixed(2);
   }
 
   return (
     <span
-      className={classNames(
-        props.textSize ? props.textSize : 'text-2xl',
-        'cursor-pointer px-2 align-middle'
-      )}
+      className={classNames(props.textSize ? props.textSize : 'text-2xl', 'cursor-pointer px-2 align-middle')}
       onClick={() => {
         setDollarMode(!dollarMode);
       }}
