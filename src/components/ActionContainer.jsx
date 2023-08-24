@@ -34,7 +34,7 @@ export const ActionContainer = () => {
   const [myAssetBalance, setMyAssetBalance] = useState(0);
   const [myVaultSharesBalance, setMyVaultSharesBalance] = useState(0);
   const [depositAmount, setDepositAmount] = useState();
-  const [withdrawAmount, setWithdrawAmount] = useState(0);
+  const [withdrawAmount, setWithdrawAmount] = useState();
   const { contractAt, getVaultStats, depositAsset, redeem } = useCheddaBaseTokenVault();
   const { address, signer, localProvider } = useAccount();
   const { approve, balanceOf, totalSupply, tokenContractAt } = useToken();
