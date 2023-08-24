@@ -8,7 +8,7 @@ import ProfileMenu from './ProfileMenu';
 
 const HeaderComponent = () => {
   const [isScrolled, setIsScrolled] = useState(false);
-  const { injectedProvider, address, logoutOfWeb3Modal, loadWeb3Modal } = useAccount();
+  const { injectedProvider, address, getAddress, logoutOfWeb3Modal, loadWeb3Modal, web3Modal } = useAccount();
 
   const menuItems = [
     {
@@ -32,6 +32,17 @@ const HeaderComponent = () => {
       icon: 'checkbox',
     },
   ];
+
+  useEffect(() => {
+    if (web3Modal.cachedProvider) {
+      loadWeb3Modal();
+      getAddress();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!address) getAddress();
+  }, [address, getAddress]);
 
   useEffect(() => {
     const handleScroll = () => {

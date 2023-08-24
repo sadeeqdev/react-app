@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
 import { Web3ModalSetup } from '../helpers';
 import { useUserProviderAndSigner } from 'eth-hooks';
@@ -42,13 +42,20 @@ export const useAccount = () => {
     });
   }, [logoutOfWeb3Modal]);
 
-  useEffect(() => {
-    async function getAddress() {
-      if (signer) {
-        const newAddress = await signer.getAddress();
-        setAddress(newAddress);
-      }
+  async function getAddress() {
+    if (signer) {
+      const newAddress = await signer.getAddress();
+      setAddress(newAddress);
     }
+  }
+
+  useEffect(() => {
+    if (!address) {
+      loadWeb3Modal();
+    }
+  }, [address]);
+
+  useEffect(() => {
     getAddress();
   }, [signer]);
 
@@ -59,5 +66,7 @@ export const useAccount = () => {
     logoutOfWeb3Modal,
     loadWeb3Modal,
     signer,
+    web3Modal,
+    getAddress,
   };
 };

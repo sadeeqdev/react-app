@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
-import CoinLogo from '../assets/logos/usdc-logo.png';
 import { useCheddaBaseTokenVault } from '../hooks/useCheddaBaseTokenVault';
 import { useToken } from '../hooks/useToken';
 import { useAccount } from '../hooks/useAccount';
 import { ENVIRONMENT } from '../constants';
+import CoinLogo from '../assets/logos/usdc-logo.png';
 
 export const ActionContainer = () => {
   const [isDepositCheddaTab, setIsDepositCheddaTab] = useState(true);
   const pool = {
     asset: {
-      logo: CoinLogo, // Replace with actual logo path
-      name: 'USDC', // Replace with actual asset name
+      logo: CoinLogo,
+      name: 'USDC',
     },
   };
   const assetSymbol = 'USDC';
@@ -26,7 +26,7 @@ export const ActionContainer = () => {
   const [myVaultSharesBalance, setMyVaultSharesBalance] = useState('');
   const { contractAt, getVaultStats } = useCheddaBaseTokenVault();
   const { balanceOf, tokenContractAt } = useToken();
-  const { address, loadWeb3Modal } = useAccount();
+  const { address, loadWeb3Modal, web3Modal } = useAccount();
 
   const switchDepositCheddaTab = isDeposit => {
     setIsDepositCheddaTab(isDeposit);
@@ -40,7 +40,7 @@ export const ActionContainer = () => {
     return value.toFixed(3).replace(/\B(?=(\d{3})+(?!\d))/g, ','); // Format as currency string
   }
 
-  async function loadVaultStats() {
+  const loadVaultStats = useCallback(async () => {
     try {
       const vaultContract = contractAt(ENVIRONMENT.config.pools[0].address);
       const stats = await getVaultStats(vaultContract);
@@ -66,22 +66,30 @@ export const ActionContainer = () => {
     } catch (error) {
       console.error('Error loading vault stats:', error);
     }
-  }
+  }, [
+    address,
+    contractAt,
+    getVaultStats,
+    setUtilizationRate,
+    setDepositApy,
+    setRewardsApy,
+    setTotalVaultAssets,
+    setMyAssetBalance,
+    setMyVaultSharesBalance,
+    tokenContractAt,
+    balanceOf,
+  ]);
 
   useEffect(() => {
-    if (address) {
-      loadVaultStats();
-    } else {
-      loadWeb3Modal();
-    }
-  }, [address]);
+    loadVaultStats();
+  }, []);
 
   const fillMaxDeposit = () => {
+    loadVaultStats();
     // Handle filling maximum deposit
   };
 
   const approveAsset = () => {
-    loadVaultStats();
     // Handle approving asset
   };
 
@@ -178,7 +186,7 @@ export const ActionContainer = () => {
               <div className="mt-4 flex justify-between text-lavendar-purple text-xs">
                 <div className="opacity-50">Enter amount to withdraw</div>
                 <div className="font-semibold">
-                  Balance: {myAssetBalance.toFixed(4)} {assetSymbol}
+                  Balance: {formatCurrency(parseFloat(myAssetBalance))} {assetSymbol}
                 </div>
               </div>
               <div className="relative">
@@ -189,7 +197,7 @@ export const ActionContainer = () => {
                 />
                 <div className="absolute top-0 right-0 mt-3 sm:mt-4 mr-1 sm:mr-2">
                   <button
-                    onClick={fillMaxDeposit}
+                    onClick={fillMaxWithdraw}
                     className="w-auto px-3 sm:px-4 h-[31px] sm:h-[41px] bg-[#20173F] rounded flex justify-center items-center hover:bg-[#4e26e0] text-xs sm:text-sm font-semibold text-[#ffffff50] hover:text-white uppercase"
                   >
                     Max
@@ -197,20 +205,12 @@ export const ActionContainer = () => {
                 </div>
               </div>
               <button
-                onClick={approveAsset}
-                className={`h-10 sm:h-12 secondary-button w-full mt-4 sm:mt-4 rounded-lg font-bold uppercase text-lg hover:opacity-90 ${
-                  !isApproved ? 'visible' : 'hidden'
-                }`}
+                onClick={redeem}
+                className={
+                  'h-10 sm:h-12 secondary-button w-full mt-4 sm:mt-4 rounded-lg font-bold uppercase text-lg hover:opacity-90'
+                }
               >
                 Withdraw {assetSymbol}
-              </button>
-              <button
-                onClick={deposit}
-                className={`h-10 sm:h-12 primary-button-bg w-full mt-4 sm:mt-4 rounded-lg font-bold uppercase text-lg hover:opacity-90 ${
-                  isApproved ? 'visible' : 'hidden'
-                }`}
-              >
-                Deposit {assetSymbol}
               </button>
             </div>
           )}
