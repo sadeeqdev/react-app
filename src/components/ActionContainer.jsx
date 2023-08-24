@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import CoinLogo from '../assets/logos/usdc-logo.png';
-import { useVaultStats } from '../hooks/useVaultStats';
 import { useCheddaBaseTokenVault } from '../hooks/useCheddaBaseTokenVault';
 import { useToken } from '../hooks/useToken';
 import { useAccount } from '../hooks/useAccount';
@@ -27,12 +26,12 @@ export const ActionContainer = () => {
   const [myVaultSharesBalance, setMyVaultSharesBalance] = useState('');
   const { contractAt, getVaultStats } = useCheddaBaseTokenVault();
   const { balanceOf, tokenContractAt } = useToken();
-  const { address, getAddress, loadWeb3Modal } = useAccount();
+  const { address, loadWeb3Modal } = useAccount();
 
   const switchDepositCheddaTab = isDeposit => {
     setIsDepositCheddaTab(isDeposit);
   };
-  const { pools } = useVaultStats();
+  // const { pools } = useVaultStats();
 
   function formatCurrency(value) {
     if (typeof value !== 'number') {
@@ -40,8 +39,6 @@ export const ActionContainer = () => {
     }
     return value.toFixed(3).replace(/\B(?=(\d{3})+(?!\d))/g, ','); // Format as currency string
   }
-
-  const formattedTotal = formatCurrency(pools && pools[0]?.stats ? parseFloat(pools[0]?.stats?.total) : '');
 
   async function loadVaultStats() {
     try {
@@ -138,7 +135,7 @@ export const ActionContainer = () => {
               <div className="mt-4 flex justify-between text-lavendar-purple text-xs">
                 <div className="opacity-50">Enter amount to deposit</div>
                 <div className="font-semibold">
-                  Balance: {parseFloat(myAssetBalance)?.toFixed(4)} {assetSymbol}
+                  Balance: {formatCurrency(parseFloat(myAssetBalance))} {assetSymbol}
                 </div>
               </div>
               <div className="relative">
@@ -227,13 +224,13 @@ export const ActionContainer = () => {
             </div>
             <div className="flex flex-col gap-y-4 font-bold text-xs sm:text-sm">
               <div>
-                {parseFloat(myVaultSharesBalance)?.toFixed(6)} {vaultTokenSymbol}
+                {formatCurrency(parseFloat(myVaultSharesBalance))} {vaultTokenSymbol}
               </div>
               <div>
-                {formattedTotal} {assetSymbol}
+                {formatCurrency(parseFloat(totalVaultAssets))} {assetSymbol}
               </div>
-              <div>{pools && pools[0]?.stats ? parseFloat(pools[0]?.stats?.utilization)?.toFixed(3) : ''}%</div>
-              <div>{pools && pools[0]?.stats ? parseFloat(pools[0]?.stats?.apr)?.toFixed(3) : ''}%</div>
+              <div>{formatCurrency(parseFloat(utilizationRate))}%</div>
+              <div>{formatCurrency(parseFloat(depositApy))}%</div>
               <div>{parseFloat(rewardsApy)?.toFixed(3)}%</div>
             </div>
           </div>
