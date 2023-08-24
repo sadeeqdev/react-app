@@ -6,6 +6,13 @@ import { useAccount } from '../hooks/useAccount';
 import { ENVIRONMENT } from '../constants';
 import CoinLogo from '../assets/logos/usdc-logo.png';
 
+function formatCurrency(value) {
+  if (typeof value !== 'number') {
+    return ''; // Return empty string if value is not a number
+  }
+  return value.toFixed(3).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
 export const ActionContainer = () => {
   const [isDepositCheddaTab, setIsDepositCheddaTab] = useState(true);
   const pool = {
@@ -26,21 +33,16 @@ export const ActionContainer = () => {
   const [totalVaultAssets, setTotalVaultAssets] = useState(0);
   const [myAssetBalance, setMyAssetBalance] = useState(0);
   const [myVaultSharesBalance, setMyVaultSharesBalance] = useState(0);
-  const { contractAt, getVaultStats } = useCheddaBaseTokenVault();
+  const [depositAmount, setDepositAmount] = useState();
+  const [withdrawAmount, setWithdrawAmount] = useState(0);
+  const { contractAt, getVaultStats, depositAsset, redeem } = useCheddaBaseTokenVault();
   const { address, signer, localProvider } = useAccount();
-  const { name, symbol, approve, allowance, balanceOf, ownedTokens, transfer, totalSupply, tokenContractAt } =
-    useToken();
+  const { approve, balanceOf, totalSupply, tokenContractAt } = useToken();
   const switchDepositCheddaTab = isDeposit => {
     setIsDepositCheddaTab(isDeposit);
   };
-  // const { pools } = useVaultStats();
 
-  function formatCurrency(value) {
-    if (typeof value !== 'number') {
-      return ''; // Return empty string if value is not a number
-    }
-    return value.toFixed(3).replace(/\B(?=(\d{3})+(?!\d))/g, ','); // Format as currency string
-  }
+  // const { pools } = useVaultStats();
 
   const loadVaultStats = useCallback(async () => {
     try {
@@ -88,8 +90,7 @@ export const ActionContainer = () => {
   }, [signer, localProvider, address]);
 
   const fillMaxDeposit = async () => {
-    await loadVaultStats();
-    // Handle filling maximum deposit
+    setDepositAmount(myAssetBalance);
   };
 
   const approveAsset = async () => {
@@ -99,11 +100,11 @@ export const ActionContainer = () => {
     }
 
     try {
-      const totaltokenSupply = await totalSupply(myAsset); // Assuming you have access to tokenService
+      const totaltokenSupply = await totalSupply(myAsset);
       console.log('myAsset', myAsset);
       console.log('vaultContract.address', vaultContract.address);
       console.log('totaltokenSupply', totaltokenSupply);
-      const txHash = await approve(myAsset, vaultContract.address, totaltokenSupply); // Assuming you have access to tokenService and vaultContract
+      const txHash = await approve(myAsset, vaultContract.address, totaltokenSupply);
       setIsApproved(true);
       console.log('Event', txHash);
     } catch (error) {
@@ -111,16 +112,38 @@ export const ActionContainer = () => {
     }
   };
 
-  const deposit = () => {
-    // Handle depositing
+  const deposit = async () => {
+    if (!address) {
+      alert('Please connect your wallet');
+      return;
+    }
+
+    try {
+      const amount = ethers.utils.parseUnits(depositAmount ?? '0');
+      setDepositAmount('');
+      await depositAsset(vaultContract, amount, address);
+    } catch (error) {
+      alert('An error occurred: ' + error.message);
+    }
   };
 
   const fillMaxWithdraw = () => {
-    // Handle filling maximum withdrawal
+    setWithdrawAmount(myVaultSharesBalance);
   };
 
-  const redeem = () => {
-    // Handle redeeming
+  const redeemAssest = async () => {
+    if (!address) {
+      alert('Please connect your wallet');
+      return;
+    }
+
+    try {
+      const amount = ethers.utils.parseUnits(withdrawAmount ?? '0');
+      setDepositAmount('');
+      await redeem(vaultContract, amount, address);
+    } catch (error) {
+      alert('An error occurred: ' + error.message);
+    }
   };
 
   return (
@@ -166,8 +189,10 @@ export const ActionContainer = () => {
               </div>
               <div className="relative">
                 <input
+                  value={depositAmount}
                   type="number"
                   placeholder="Amount"
+                  onChange={e => setDepositAmount(e.target.value)}
                   className="bg-black w-full rounded mt-2 h-10 sm:h-14 px-4 font-semibold text-white text-xs sm:text-sm focus:outline-none focus:shadow-outline"
                 />
                 <div className="absolute top-0 right-0 mt-3 sm:mt-4 mr-1 sm:mr-2">
@@ -204,13 +229,15 @@ export const ActionContainer = () => {
               <div className="mt-4 flex justify-between text-lavendar-purple text-xs">
                 <div className="opacity-50">Enter amount to withdraw</div>
                 <div className="font-semibold">
-                  Balance: {formatCurrency(parseFloat(myAssetBalance))} {assetSymbol}
+                  Balance: {formatCurrency(parseFloat(myVaultSharesBalance))} {assetSymbol}
                 </div>
               </div>
               <div className="relative">
                 <input
+                  value={withdrawAmount}
                   type="number"
                   placeholder="Amount"
+                  onChange={e => setWithdrawAmount(e.target.value)}
                   className="bg-black w-full rounded mt-2 h-10 sm:h-14 px-4 font-semibold text-white text-xs sm:text-sm focus:outline-none focus:shadow-outline"
                 />
                 <div className="absolute top-0 right-0 mt-3 sm:mt-4 mr-1 sm:mr-2">
@@ -223,7 +250,7 @@ export const ActionContainer = () => {
                 </div>
               </div>
               <button
-                onClick={redeem}
+                onClick={redeemAssest}
                 className={
                   'h-10 sm:h-12 secondary-button w-full mt-4 sm:mt-4 rounded-lg font-bold uppercase text-lg hover:opacity-90'
                 }
