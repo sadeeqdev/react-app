@@ -3,6 +3,7 @@ import { ethers } from 'ethers';
 import { Web3ModalSetup } from '../helpers';
 import { useUserProviderAndSigner } from 'eth-hooks';
 import { ENVIRONMENT } from '../constants';
+import useStaticJsonRPC from './useStaticJsonRPC';
 
 const web3Modal = Web3ModalSetup();
 const USE_BURNER_WALLET = false;
@@ -11,7 +12,7 @@ export const useAccount = () => {
   const [injectedProvider, setInjectedProvider] = useState();
   const [address, setAddress] = useState();
 
-  const localProvider = new ethers.providers.StaticJsonRpcProvider(ENVIRONMENT.jsonRpcUrl);
+  const localProvider = useStaticJsonRPC([ENVIRONMENT.jsonRpcUrl]);
   const { signer } = useUserProviderAndSigner(injectedProvider, localProvider, USE_BURNER_WALLET);
 
   const logoutOfWeb3Modal = useCallback(async () => {
@@ -27,7 +28,6 @@ export const useAccount = () => {
   const loadWeb3Modal = useCallback(async () => {
     const provider = await web3Modal.connect();
     setInjectedProvider(new ethers.providers.Web3Provider(provider));
-    getAddress();
     const updateProvider = chainId => {
       console.log(`chain changed to ${chainId}! updating providers`);
       setInjectedProvider(new ethers.providers.Web3Provider(provider));
@@ -42,15 +42,15 @@ export const useAccount = () => {
     });
   }, [logoutOfWeb3Modal]);
 
-  const getAddress = useCallback(async () => {
-    if (signer && !address) {
-      const newAddress = await signer.getAddress();
-      setAddress(newAddress);
-      console.log('Address', newAddress);
-    } else {
-      console.log('No signer or address already set');
+  useEffect(() => {
+    async function getAddress() {
+      if (signer) {
+        const newAddress = await signer.getAddress();
+        setAddress(newAddress);
+      }
     }
-  }, [signer, address]);
+    getAddress();
+  }, [signer]);
 
   return {
     localProvider,
@@ -59,6 +59,5 @@ export const useAccount = () => {
     logoutOfWeb3Modal,
     loadWeb3Modal,
     signer,
-    getAddress,
   };
 };

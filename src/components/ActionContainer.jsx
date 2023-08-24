@@ -7,14 +7,6 @@ import { useToken } from '../hooks/useToken';
 import { useAccount } from '../hooks/useAccount';
 import { ENVIRONMENT } from '../constants';
 
-function formatCurrency(value) {
-  if (typeof value !== 'number') {
-    return ''; // Return empty string if value is not a number
-  }
-  return value.toFixed(3).replace(/\B(?=(\d{3})+(?!\d))/g, ','); // Format as currency string
-}
-const address = 'hdhflsafjn';
-
 export const ActionContainer = () => {
   const [isDepositCheddaTab, setIsDepositCheddaTab] = useState(true);
   const pool = {
@@ -33,19 +25,66 @@ export const ActionContainer = () => {
   const [totalVaultAssets, setTotalVaultAssets] = useState('');
   const [myAssetBalance, setMyAssetBalance] = useState('');
   const [myVaultSharesBalance, setMyVaultSharesBalance] = useState('');
+  const { contractAt, getVaultStats } = useCheddaBaseTokenVault();
+  const { balanceOf, tokenContractAt } = useToken();
+  const { address, getAddress, loadWeb3Modal } = useAccount();
 
   const switchDepositCheddaTab = isDeposit => {
     setIsDepositCheddaTab(isDeposit);
   };
-  const pools = [];
+  const { pools } = useVaultStats();
+
+  function formatCurrency(value) {
+    if (typeof value !== 'number') {
+      return ''; // Return empty string if value is not a number
+    }
+    return value.toFixed(3).replace(/\B(?=(\d{3})+(?!\d))/g, ','); // Format as currency string
+  }
 
   const formattedTotal = formatCurrency(pools && pools[0]?.stats ? parseFloat(pools[0]?.stats?.total) : '');
+
+  async function loadVaultStats() {
+    try {
+      const vaultContract = contractAt(ENVIRONMENT.config.pools[0].address);
+      const stats = await getVaultStats(vaultContract);
+      console.log('vaultContract', vaultContract);
+
+      setUtilizationRate(ethers.utils.formatEther(stats.utilization.mul(100)));
+      setDepositApy(ethers.utils.formatEther(stats.depositApr.mul(1000))); // todo: Should be .mul(100)
+      setRewardsApy(ethers.utils.formatEther(stats.rewardsApr.mul(100)));
+      setTotalVaultAssets(ethers.utils.formatEther(stats.liquidity));
+
+      if (address) {
+        const asset = tokenContractAt(ENVIRONMENT.config.pools[0].asset.address);
+        console.log('asset', asset);
+        const assetBalance = await balanceOf(asset, address);
+        console.log('assetBalance', assetBalance);
+        setMyAssetBalance(ethers.utils.formatEther(assetBalance));
+
+        const vaultSharesBalance = await balanceOf(vaultContract, address);
+        console.log('vaultSharesBalance', vaultSharesBalance);
+        console.log('address', address);
+        setMyVaultSharesBalance(ethers.utils.formatEther(vaultSharesBalance));
+      }
+    } catch (error) {
+      console.error('Error loading vault stats:', error);
+    }
+  }
+
+  useEffect(() => {
+    if (address) {
+      loadVaultStats();
+    } else {
+      loadWeb3Modal();
+    }
+  }, [address]);
 
   const fillMaxDeposit = () => {
     // Handle filling maximum deposit
   };
 
   const approveAsset = () => {
+    loadVaultStats();
     // Handle approving asset
   };
 
@@ -99,7 +138,7 @@ export const ActionContainer = () => {
               <div className="mt-4 flex justify-between text-lavendar-purple text-xs">
                 <div className="opacity-50">Enter amount to deposit</div>
                 <div className="font-semibold">
-                  Balance: {formatCurrency(parseFloat(myAssetBalance))} {assetSymbol}
+                  Balance: {parseFloat(myAssetBalance)?.toFixed(4)} {assetSymbol}
                 </div>
               </div>
               <div className="relative">
@@ -188,7 +227,7 @@ export const ActionContainer = () => {
             </div>
             <div className="flex flex-col gap-y-4 font-bold text-xs sm:text-sm">
               <div>
-                {formatCurrency(parseFloat(myVaultSharesBalance))} {vaultTokenSymbol}
+                {parseFloat(myVaultSharesBalance)?.toFixed(6)} {vaultTokenSymbol}
               </div>
               <div>
                 {formattedTotal} {assetSymbol}

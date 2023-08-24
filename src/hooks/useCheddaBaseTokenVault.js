@@ -2,9 +2,10 @@ import { ethers } from 'ethers';
 import CheddaBaseTokenVault from '../artifacts/CheddaBaseTokenVault.json';
 import { ENVIRONMENT } from '../constants';
 import { useAccount } from './useAccount';
+import useStaticJsonRPC from './useStaticJsonRPC';
 
 export const useCheddaBaseTokenVault = () => {
-  const localProvider = new ethers.providers.StaticJsonRpcProvider(ENVIRONMENT.jsonRpcUrl);
+  const localProvider = useStaticJsonRPC([ENVIRONMENT.jsonRpcUrl]);
 
   const { signer } = useAccount();
   const depositAsset = async (contract, amount, toAccount) => {

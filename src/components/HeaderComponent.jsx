@@ -8,6 +8,7 @@ import ProfileMenu from './ProfileMenu';
 
 const HeaderComponent = () => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const { injectedProvider, address, logoutOfWeb3Modal, loadWeb3Modal } = useAccount();
 
   const menuItems = [
     {
@@ -66,10 +67,10 @@ const HeaderComponent = () => {
         </div>
         <div className="flex flex-row gap-2 text-white">
           <NetworkMenu />
-          {isScrolled ? (
-            <ProfileMenu disconnectWallet={() => {}} address={'ytukgkugkyu'} />
+          {injectedProvider ? (
+            <ProfileMenu disconnectWallet={logoutOfWeb3Modal} address={address} />
           ) : (
-            <ConnectButton connectWallet={() => {}} />
+            <ConnectButton connectWallet={loadWeb3Modal} />
           )}
         </div>
       </div>
