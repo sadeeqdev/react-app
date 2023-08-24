@@ -16,18 +16,20 @@ export const ActionContainer = () => {
   };
   const assetSymbol = 'USDC';
   const vaultTokenSymbol = 'Chedda';
-  const isApproved = false;
   const assetName = 'USD Coin';
-  const [utilizationRate, setUtilizationRate] = useState('');
-  const [depositApy, setDepositApy] = useState('');
-  const [rewardsApy, setRewardsApy] = useState('');
-  const [totalVaultAssets, setTotalVaultAssets] = useState('');
-  const [myAssetBalance, setMyAssetBalance] = useState('');
-  const [myVaultSharesBalance, setMyVaultSharesBalance] = useState('');
+  const [myAsset, setMyAsset] = useState('');
+  const [vaultContract, setVaultContract] = useState();
+  const [isApproved, setIsApproved] = useState(false);
+  const [utilizationRate, setUtilizationRate] = useState(0);
+  const [depositApy, setDepositApy] = useState(0);
+  const [rewardsApy, setRewardsApy] = useState(0);
+  const [totalVaultAssets, setTotalVaultAssets] = useState(0);
+  const [myAssetBalance, setMyAssetBalance] = useState(0);
+  const [myVaultSharesBalance, setMyVaultSharesBalance] = useState(0);
   const { contractAt, getVaultStats } = useCheddaBaseTokenVault();
-  const { balanceOf, tokenContractAt } = useToken();
-  const { address, loadWeb3Modal, web3Modal } = useAccount();
-
+  const { address, signer, localProvider } = useAccount();
+  const { name, symbol, approve, allowance, balanceOf, ownedTokens, transfer, totalSupply, tokenContractAt } =
+    useToken();
   const switchDepositCheddaTab = isDeposit => {
     setIsDepositCheddaTab(isDeposit);
   };
@@ -43,8 +45,9 @@ export const ActionContainer = () => {
   const loadVaultStats = useCallback(async () => {
     try {
       const vaultContract = contractAt(ENVIRONMENT.config.pools[0].address);
+      setVaultContract(vaultContract);
       const stats = await getVaultStats(vaultContract);
-      console.log('vaultContract', vaultContract);
+      console.log('vaultContract', stats);
 
       setUtilizationRate(ethers.utils.formatEther(stats.utilization.mul(100)));
       setDepositApy(ethers.utils.formatEther(stats.depositApr.mul(1000))); // todo: Should be .mul(100)
@@ -53,7 +56,7 @@ export const ActionContainer = () => {
 
       if (address) {
         const asset = tokenContractAt(ENVIRONMENT.config.pools[0].asset.address);
-        console.log('asset', asset);
+        setMyAsset(asset);
         const assetBalance = await balanceOf(asset, address);
         console.log('assetBalance', assetBalance);
         setMyAssetBalance(ethers.utils.formatEther(assetBalance));
@@ -82,15 +85,30 @@ export const ActionContainer = () => {
 
   useEffect(() => {
     loadVaultStats();
-  }, []);
+  }, [signer, localProvider, address]);
 
-  const fillMaxDeposit = () => {
-    loadVaultStats();
+  const fillMaxDeposit = async () => {
+    await loadVaultStats();
     // Handle filling maximum deposit
   };
 
-  const approveAsset = () => {
-    // Handle approving asset
+  const approveAsset = async () => {
+    if (!address) {
+      alert('Please connect your wallet');
+      return;
+    }
+
+    try {
+      const totaltokenSupply = await totalSupply(myAsset); // Assuming you have access to tokenService
+      console.log('myAsset', myAsset);
+      console.log('vaultContract.address', vaultContract.address);
+      console.log('totaltokenSupply', totaltokenSupply);
+      const txHash = await approve(myAsset, vaultContract.address, totaltokenSupply); // Assuming you have access to tokenService and vaultContract
+      setIsApproved(true);
+      console.log('Event', txHash);
+    } catch (error) {
+      alert('An error occurred: ' + error.message);
+    }
   };
 
   const deposit = () => {
