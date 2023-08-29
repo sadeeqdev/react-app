@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ActionContainer } from '../components/ActionContainer';
+import React from 'react';
+import { LendContainer } from '../components/LendContainer';
 import BackIcon from '../assets/icon/back-icon.png';
 
 const AppPageTitle = ({ heading, subHeading }) => (
@@ -12,28 +12,8 @@ const AppPageTitle = ({ heading, subHeading }) => (
 );
 
 const LendPage = () => {
-  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
-  const [account, setAccount] = useState(/* provide account value */);
-  // Define your state variables and functions here
-
-  const openMobileNav = () => {
-    setIsMobileNavOpen(true);
-  };
-
   const navigateToMarkets = () => {
     // Handle navigation to markets
-  };
-
-  const closeMobileNav = () => {
-    setIsMobileNavOpen(false);
-  };
-
-  const onConnectTapped = () => {
-    // Handle connect wallet functionality
-  };
-
-  const disconnect = () => {
-    // Handle disconnect wallet functionality
   };
 
   return (
@@ -48,7 +28,7 @@ const LendPage = () => {
           Back to Market
         </button>
       </div>
-      <ActionContainer />
+      <LendContainer />
     </div>
   );
 };
